@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thư viện Anime của Hùng</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <style>
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-900 font-sans">
+  <!-- Header -->
+  <header class="bg-indigo-600 text-white text-center py-4 text-2xl font-bold">
+    📚 Thư viện Anime của Hùng
+  </header>
+
+  <!-- Auth Form -->
+  <div class="max-w-md mx-auto mt-6 bg-white p-4 rounded shadow">
+    <input id="email" type="email" placeholder="Email" class="w-full mb-2 p-2 border rounded" />
+    <input id="password" type="password" placeholder="Mật khẩu" class="w-full mb-2 p-2 border rounded" />
+    <div class="flex space-x-2">
+      <button onclick="signup()" class="flex-1 bg-blue-500 text-white p-2 rounded">Đăng ký</button>
+      <button onclick="login()" class="flex-1 bg-green-500 text-white p-2 rounded">Đăng nhập</button>
+      <button onclick="logout()" class="flex-1 bg-red-500 text-white p-2 rounded">Đăng xuất</button>
+    </div>
+  </div>
+
+  <!-- Filter + Search -->
+  <div class="max-w-4xl mx-auto mt-6 px-4">
+    <select id="genreSelect" class="w-full mb-4 p-2 rounded border border-gray-300">
+      <option value="">-- Lọc theo thể loại --</option>
+      <option value="Hành động">Hành động</option>
+      <option value="Kịch tính">Kịch tính</option>
+      <option value="Lãng mạn">Lãng mạn</option>
+      <option value="Siêu nhiên">Siêu nhiên</option>
+    </select>
+    <input type="text" id="searchInput" placeholder="Tìm anime theo tên..." class="w-full mb-4 p-2 rounded border border-gray-300" />
+  </div>
+
+  <!-- Anime List -->
+  <main class="max-w-6xl mx-auto p-4">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="animeList"></div>
+  </main>
+
+  <!-- Tập và video player -->
+  <div id="episodeSection" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+    <div class="bg-white w-full max-w-3xl p-4 rounded relative">
+      <button id="closeModal" class="absolute top-2 right-2 text-black text-lg">&times;</button>
+      <h2 class="text-lg font-semibold mb-2" id="episodeTitle">Chọn tập</h2>
+      <select id="episodeSelect" class="w-full p-2 mb-4 border rounded"></select>
+      <div class="aspect-video">
+        <iframe id="videoPlayer" class="w-full h-full rounded" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="anime.js"></script>
+  <script src="main.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAym_OSEPFiyJfDB6FcWWmWe3APQE4Ir1M",
+      authDomain: "thu-vien-anime.firebaseapp.com",
+      projectId: "thu-vien-anime",
+      storageBucket: "thu-vien-anime.appspot.com",
+      messagingSenderId: "666905146575",
+      appId: "1:666905146575:web:f2f77a8a16d1f26ea033ba"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    function signup() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(() => alert("Đăng ký thành công!"))
+        .catch(error => alert("Lỗi: " + error.message));
+    }
+    function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => alert("Đăng nhập thành công!"))
+        .catch(error => alert("Lỗi: " + error.message));
+    }
+    function logout() {
+      auth.signOut().then(() => alert("Đã đăng xuất!"));
+    }
+  </script>
+</body>
+</html>
