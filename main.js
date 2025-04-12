@@ -3,11 +3,12 @@ const animeList = [
   {
     title: "Grand blue",
     genre: "Hài hước, tình cảm",
-    year: 2020,
+    year: 2016,
     image: "https://i.imgur.com/WdNeyg0.jpeg",
     episodes: [
       { name: "Tập 1", videoId: "1TFM3VCKHLpuD8zBHiAVucn7LpMNARbNh" },
-      { name: "Tập 2", videoId: "1TABCDEFHIJKLmnO0aBCDEF123456789" }
+      { name: "Tập 2", videoId: "1-7vXxMrG6dUVI-wJ19aDdWZeCPKaxZOM" },
+      { name: "Tập 3", videoId: "1-Bn_A9iiCa_o5KBkpxEstq19v-iNR9t" }
     ]
   },
   {
