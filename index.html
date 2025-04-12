@@ -22,30 +22,11 @@
   <!-- Nội dung chính -->
   <main class="hidden p-4 max-w-5xl mx-auto" id="mainContent">
     <h1 class="text-3xl font-bold mb-4">Thư Viện Anime</h1>
-
-    <div class="flex flex-col sm:flex-row gap-4 mb-4">
-      <input type="text" id="searchInput" placeholder="Tìm anime..." class="flex-1 p-2 border rounded">
-      <select id="genreSelect" class="p-2 border rounded">
-        <option value="">Tất cả thể loại</option>
-        <option value="Hài hước">Hài hước</option>
-        <option value="Lãng mạn">Lãng mạn</option>
-        <option value="Kịch tính">Kịch tính</option>
-      </select>
-    </div>
-
     <div id="animeList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
-
-    <div class="mt-8 hidden" id="episodeSection">
-      <h2 class="text-xl font-semibold mb-2">Chọn Tập</h2>
-      <select id="episodeSelect" class="p-2 border rounded"></select>
-      <div class="mt-4 aspect-video">
-        <iframe id="videoPlayer" class="w-full h-full" allowfullscreen></iframe>
-      </div>
-    </div>
   </main>
 
-  <!-- Nạp dữ liệu từ Firebase -->
   <script>
+    // Firebase config của Hùng
     const firebaseConfig = {
       apiKey: "AIzaSyAym_OSEPFiyJfDB6FcWWmWe3APQE4Ir1M",
       authDomain: "thu-vien-anime.firebaseapp.com",
@@ -58,6 +39,7 @@
 
     const allowedEmail = "gamesekaij@gmail.com";
 
+    // Đăng nhập
     document.getElementById("loginBtn").addEventListener("click", () => {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
@@ -67,65 +49,65 @@
         });
     });
 
+    // Xử lý trạng thái đăng nhập
     firebase.auth().onAuthStateChanged(user => {
-      if (user && user.email === allowedEmail) {
-        document.getElementById("login").classList.add("hidden");
-        document.getElementById("mainContent").classList.remove("hidden");
-        renderAnimeList(animeList);
+      if (user) {
+        if (user.email === allowedEmail) {
+          document.getElementById("login").style.display = "none";
+          document.getElementById("mainContent").classList.remove("hidden");
+          renderAnimeList(); // gọi hàm hiển thị anime
+        } else {
+          alert("Bạn không có quyền truy cập.");
+          firebase.auth().signOut();
+        }
       }
     });
 
-    const container = document.getElementById("animeList");
-    const episodeSelect = document.getElementById("episodeSelect");
-    const episodeSection = document.getElementById("episodeSection");
-    const videoPlayer = document.getElementById("videoPlayer");
+    // Dữ liệu anime mẫu
+    const animeList = [
+      {
+        title: "Grand blue",
+        image: "https://i.imgur.com/WdNeyg0.jpeg",
+        episodes: [
+          { title: "Tập 1", id: "1TFM3VCKHLpuD8zBHiAVucn7LpMNARbNh" },
+          { title: "Tập 2", id: "1abcxyz123456" }
+        ]
+      }
+    ];
 
-    function renderAnimeList(data) {
+    // Hàm hiển thị anime
+    function renderAnimeList() {
+      const container = document.getElementById("animeList");
       container.innerHTML = "";
-      data.forEach(anime => {
+
+      animeList.forEach(anime => {
         const card = document.createElement("div");
-        card.className = "bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition";
+        card.className = "bg-white rounded-xl shadow-md p-4";
+
+        let episodeOptions = anime.episodes.map(ep => `
+          <option value="${ep.id}">${ep.title}</option>
+        `).join("");
+
         card.innerHTML = `
-          <div class="relative group cursor-pointer">
-            <img src="${anime.image}" alt="${anime.title}" class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105 rounded-t-lg">
-            <div class="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-              <button class="bg-white text-black px-4 py-1 text-sm font-semibold rounded-full shadow">Xem ngay</button>
-            </div>
-          </div>
-          <div class="p-3 bg-white rounded-b-lg">
-            <h2 class="text-base font-semibold line-clamp-1">${anime.title}</h2>
-            <p class="text-sm text-gray-500">${anime.genre} - ${anime.year}</p>
-          </div>
+          <img src="${anime.image}" alt="${anime.title}" class="rounded-lg mb-2">
+          <h2 class="text-lg font-bold">${anime.title}</h2>
+          <select class="episodeSelect mt-2 border p-1 rounded w-full">
+            ${episodeOptions}
+          </select>
+          <iframe class="videoPlayer mt-2 w-full h-64 rounded" src="https://drive.google.com/file/d/${anime.episodes[0].id}/preview" allowfullscreen></iframe>
         `;
-        card.querySelector("button").addEventListener("click", () => {
-          episodeSelect.innerHTML = anime.episodes.map(ep => `<option value="${ep.id}">${ep.name}</option>`).join("");
-          videoPlayer.src = `https://drive.google.com/file/d/${anime.episodes[0].id}/preview`;
-          episodeSection.classList.remove("hidden");
+
+        const select = card.querySelector(".episodeSelect");
+        const player = card.querySelector(".videoPlayer");
+
+        select.addEventListener("change", function () {
+          const selectedId = this.value;
+          player.src = `https://drive.google.com/file/d/${selectedId}/preview`;
         });
+
         container.appendChild(card);
       });
     }
-
-    episodeSelect.addEventListener("change", function () {
-      const videoId = this.value;
-      videoPlayer.src = `https://drive.google.com/file/d/${videoId}/preview`;
-    });
-
-    document.getElementById("searchInput").addEventListener("input", function () {
-      const keyword = this.value.toLowerCase();
-      const filtered = animeList.filter(anime => anime.title.toLowerCase().includes(keyword));
-      renderAnimeList(filtered);
-    });
-
-    document.getElementById("genreSelect").addEventListener("change", function () {
-      const genre = this.value.toLowerCase();
-      const filtered = genre ? animeList.filter(anime => anime.genre.toLowerCase().includes(genre)) : animeList;
-      renderAnimeList(filtered);
-    });
   </script>
-
-  <!-- Thêm file dữ liệu anime ở dưới cùng -->
-  <script src="animeData.js"></script>
-  <script src="main.js"></script>
 </body>
 </html>
